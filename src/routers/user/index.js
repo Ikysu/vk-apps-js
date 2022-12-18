@@ -16,7 +16,23 @@ export default async function (app) {
         if(data){
             return { statusCode:200, data:{...data.dataValues, tags} }
         }else{
-            return { statusCode:404, error:"Пользователь не найден"}
+            if(user_id==req.vk.vk_user_id){
+                let data = await app.db.models["User"].ups({
+                    user_id:req.vk.vk_user_id
+                },{
+                    user_id:req.vk.vk_user_id,
+                    city:0,
+                    description:""
+                })
+                if(data.dataValues){
+                    reply.send({ statusCode:200, data:{...data.dataValues, tags:[] }})
+                }else{
+                    reply.status(400).send({ statusCode:400, error:"Ошибка создания" })
+                }
+            }else{
+                return { statusCode:404, error:"Пользователь не найден"}
+            }
+            
         }
     })
 
@@ -29,16 +45,22 @@ export default async function (app) {
             }   
         }))).map(({tag_id})=>tag_id))]
         if(newTags){
-            (await app.db.models["User-Tag"].findAll({
+            let del = (await app.db.models["User-Tag"].findAll({
                 where:{
                     user_id:req.vk.vk_user_id,
                     tag_id:{
-                        $or:newTags
+                        $in:newTags
                     }
                 }
-            })).forEach(e=>{
-                e.destroy({force: true})
-            })
+            }))
+
+            await app.db.transaction(async (t) => {
+                return await del.map(async e=>{
+                    return await e.destroy({force: true, transaction:t})
+                })
+            });
+
+
             await newTags.forEach(async tag=>{
                 tags.push(tag)
                 let cTag = await app.db.models["Tag"].ups({

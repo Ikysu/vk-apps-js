@@ -12,7 +12,8 @@ const operatorsAliases = {
     $like: Op.like,
     $in: Op.in,
     $not: Op.not,
-    $or: Op.or
+    $or: Op.or,
+    $in: Op.in
 }
 
 const fastify = Fastify();
