@@ -18,7 +18,6 @@ const operatorsAliases = {
 const fastify = Fastify();
 
 const settings = JSON.parse(fs.readFileSync("settings.json", "utf-8"))
-const utest = JSON.parse(fs.readFileSync("users.json", "utf-8"))
 
 fastify.settings=settings;
 
@@ -107,15 +106,6 @@ fastify.register(FastifyORM, {
       }
     })
 
-    
-    /*
-    for(let t=0;t<settings.types.length;t++) {
-      let data = await fastify.db.models["Type"].create({
-        name:settings.types[t]
-      })
-    }
-    */
-    
 
 
     
@@ -125,57 +115,6 @@ fastify.register(FastifyORM, {
 
     console.log(fastify.printRoutes())
 
-    
-    /*
-    utest.forEach(async e=>{
-      let newTags = e?.tags;
-        let tags = newTags?[]:(await (await fastify.db.models["User-Tag"].findAll({
-            where:{
-                user_id:e.id
-            }   
-        })).map(async ({tag_id})=>await fastify.db.models["Tag"].findOne({
-            where:{
-                tag_id
-            }   
-        })))
-        if(newTags){
-            await newTags.forEach(async tag=>{
-                let cTag = (await fastify.db.models["Tag"].findOrCreate({
-                  where:{
-                    tag_id:tag
-                  },
-                  defaults:{
-                    tag_id:tag,
-                    type_id:1
-                  }
-                }))[0]
-                if(cTag.dataValues){
-                    let ok = (await fastify.db.models["User-Tag"].findOrCreate({
-                      where:{
-                        user_id:e.id,
-                        tag_id:cTag.dataValues.tag_id
-                      },
-                      defaults:{
-                        user_id:e.id,
-                        tag_id:cTag.dataValues.tag_id
-                      }
-                    }))[0]
-                    if(ok.dataValues){
-                        tags.push(tag)
-                    }
-                }
-            })
-        }
-
-        fastify.db.models["User"].ups({
-            user_id:e.id
-        },{
-            user_id:e.id,
-            city:0,
-            description:e.about
-        })
-    })
-    */
     
     
     
