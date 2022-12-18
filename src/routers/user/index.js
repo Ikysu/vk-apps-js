@@ -16,22 +16,23 @@ export default async function (app) {
         if(data){
             return { statusCode:200, data:{...data.dataValues, tags} }
         }else{
-            if(user_id==req.vk.vk_user_id){
-                let data = await app.db.models["User"].ups({
-                    user_id:req.vk.vk_user_id
-                },{
-                    user_id:req.vk.vk_user_id,
-                    city:0,
-                    description:""
-                })
-                if(data.dataValues){
-                    reply.send({ statusCode:200, data:{...data.dataValues, tags:[] }})
-                }else{
-                    reply.status(400).send({ statusCode:400, error:"Ошибка создания" })
-                }
-            }else{
-                return { statusCode:404, error:"Пользователь не найден"}
-            }
+            //if(user_id==req.vk.vk_user_id){
+            //    let data = await app.db.models["User"].ups({
+            //        user_id:req.vk.vk_user_id
+            //    },{
+            //        user_id:req.vk.vk_user_id,
+            //        city:0,
+            //        description:""
+            //    })
+            //    if(data.dataValues){
+            //        reply.send({ statusCode:200, data:{...data.dataValues, tags:[] }})
+            //    }else{
+            //        reply.status(400).send({ statusCode:400, error:"Ошибка создания" })
+            //    }
+            //}else{
+            //    return { statusCode:404, error:"Пользователь не найден"}
+            //}
+            return { statusCode:404, error:"Пользователь не найден"}
             
         }
     })
@@ -45,20 +46,7 @@ export default async function (app) {
             }   
         }))).map(({tag_id})=>tag_id))]
         if(newTags){
-            let del = (await app.db.models["User-Tag"].findAll({
-                where:{
-                    user_id:req.vk.vk_user_id,
-                    tag_id:{
-                        $in:newTags
-                    }
-                }
-            }))
-
-            await app.db.transaction(async (t) => {
-                return await del.map(async e=>{
-                    return await e.destroy({force: true, transaction:t})
-                })
-            });
+            await app.db.query("DELETE FROM `User-Tags` WHERE user_id = "+req.vk.vk_user_id+" AND tag_id IN (SELECT tag_id FROM `User-Tags` WHERE user_id = "+req.vk.vk_user_id+");")
 
 
             await newTags.forEach(async tag=>{

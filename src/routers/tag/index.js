@@ -9,7 +9,7 @@ export default async function (app) {
             },
             limit:5
         })
-      	return { statusCode:200, data }
+      	return { statusCode:200, data:data.map(({tag_id})=>tag_id) }
     })
 
 
