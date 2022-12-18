@@ -23,6 +23,7 @@ export default async function (app) {
             //        user_id:req.vk.vk_user_id,
             //        city:0,
             //        description:""
+        
             //    })
             //    if(data.dataValues){
             //        reply.send({ statusCode:200, data:{...data.dataValues, tags:[] }})
